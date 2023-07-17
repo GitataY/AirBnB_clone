@@ -40,39 +40,39 @@ class HBNBCommand(cmd.Cmd):
         """do nothing when empty line"""
         pass
 
-    def do_count(self, cls_name):
+    def do_count(self, line):
         """counts number of instances of a class"""
         count = 0
         all_objs = storage.all()
         for k, v in all_objs.items():
             clss = k.split('.')
-            if clss[0] == cls_name:
+            if clss[0] == line:
                 count = count + 1
         print(count)
 
-    def do_create(self, type_model):
+    def do_create(self, line):
         """ Creates an instance according to a given class """
+        args = line.split()
 
-        if not type_model:
+        if not args:
             print("** class name missing **")
-        elif type_model not in HBNBCommand.l_classes:
+        elif args[0] not in HBNBCommand.l_classes:
             print("** class doesn't exist **")
         else:
             dct = {'BaseModel': BaseModel, 'User': User, 'Place': Place,
                    'City': City, 'Amenity': Amenity, 'State': State,
                    'Review': Review}
-            my_model = dct[type_model]()
+            my_model = dct[args[0]]()
             print(my_model.id)
             my_model.save()
 
-    def do_show(self, arg):
+    def do_show(self, line):
         """ Shows string representation of an instance passed """
+        args = line.split()
 
-        if not arg:
+        if not args:
             print("** class name missing **")
             return
-
-        args = arg.split(' ')
 
         if args[0] not in HBNBCommand.l_classes:
             print("** class doesn't exist **")
@@ -88,14 +88,13 @@ class HBNBCommand(cmd.Cmd):
                     return
             print("** no instance found **")
 
-    def do_destroy(self, arg):
+    def do_destroy(self, line):
         """ Deletes an instance passed """
+        args = line.split()
 
-        if not arg:
+        if not args:
             print("** class name missing **")
             return
-
-        args = arg.split(' ')
 
         if args[0] not in HBNBCommand.l_classes:
             print("** class doesn't exist **")
@@ -113,14 +112,13 @@ class HBNBCommand(cmd.Cmd):
                     return
             print("** no instance found **")
 
-    def do_all(self, arg):
+    def do_all(self, line):
         """ Prints string represention of all instances of a given class """
+        args = line.split()
 
-        if not arg:
+        if not args:
             print("** class name missing **")
             return
-
-        args = arg.split(' ')
 
         if args[0] not in HBNBCommand.l_classes:
             print("** class doesn't exist **")
@@ -133,22 +131,17 @@ class HBNBCommand(cmd.Cmd):
                     list_instances += [value.__str__()]
             print(list_instances)
 
-    def do_update(self, arg):
+    def do_update(self, line):
         """ Updates an instance based on the class name and id """
+        args = line.split(',')
 
-        if not arg:
+        if not args:
             print("** class name missing **")
             return
 
-        a = ""
-        for argv in arg.split(','):
-            a = a + argv
-
-        args = shlex.split(a)
-
         if args[0] not in HBNBCommand.l_classes:
             print("** class doesn't exist **")
-        elif len(args) == 1:
+        elif len(args) < 2:
             print("** instance id missing **")
         else:
             all_objs = storage.all()
@@ -156,12 +149,12 @@ class HBNBCommand(cmd.Cmd):
                 ob_name = objc.__class__.__name__
                 ob_id = objc.id
                 if ob_name == args[0] and ob_id == args[1].strip('"'):
-                    if len(args) == 2:
+                    if len(args) < 3:
                         print("** attribute name missing **")
-                    elif len(args) == 3:
+                    elif len(args) < 4:
                         print("** value missing **")
                     else:
-                        setattr(objc, args[2], args[3])
+                        setattr(objc, args[2], args[3].strip('"'))
                         storage.save()
                     return
             print("** no instance found **")
